@@ -1,6 +1,10 @@
+
 <?php
 $tool = $_GET["tool"] ?? "plan";
 
+/* ---------------------------
+   VISA DATABASE (safe lookup)
+----------------------------*/
 function visaData() {
     return [
         "Netherlands" => [
@@ -10,7 +14,7 @@ function visaData() {
         ],
         "UK" => [
             "USA" => ["ESTA", 90, "Required"],
-            "Thailand" => ["Visa Free", 30, ""]
+            "Thailand" => ["Visa Free", 30, "No action needed"]
         ]
     ];
 }
@@ -18,18 +22,38 @@ function visaData() {
 $data = visaData();
 $result = null;
 
-// VISA
+/* ---------------------------
+   VISA LOGIC
+----------------------------*/
 if ($tool === "visa" && $_SERVER["REQUEST_METHOD"] === "POST") {
-    $from = $_POST["from"] ?? "";
-    $to = $_POST["to"] ?? "";
-    $result = $data[$from][$to] ?? ["Unknown","-","No data"];
+    $from = trim($_POST["from"] ?? "");
+    $to = trim($_POST["to"] ?? "");
+
+    if (isset($data[$from][$to])) {
+        $result = $data[$from][$to];
+    } else {
+        $result = ["Unknown visa", "-", "No data available"];
+    }
 }
 
-// SCHENGEN
+/* ---------------------------
+   SCHENGEN LOGIC
+----------------------------*/
 if ($tool === "schengen" && $_SERVER["REQUEST_METHOD"] === "POST") {
     $used = intval($_POST["used"] ?? 0);
-    $remaining = 90 - $used;
-    $result = [$used,$remaining,$remaining>=0?"OK":"OVERSTAY"];
+    $remaining = max(0, 90 - $used);
+    $status = ($used > 90) ? "OVERSTAY RISK" : "OK";
+
+    $result = [$used, $remaining, $status];
+}
+
+/* ---------------------------
+   LOAD SHARED TRIP
+----------------------------*/
+$sharedStops = [];
+if (!empty($_GET["data"])) {
+    $decoded = json_decode($_GET["data"], true);
+    if (is_array($decoded)) $sharedStops = $decoded;
 }
 ?>
 
@@ -37,38 +61,40 @@ if ($tool === "schengen" && $_SERVER["REQUEST_METHOD"] === "POST") {
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Travel OS v3</title>
+<title>Travel OS</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-body{font-family:system-ui;margin:0;background:#f6f8ff}
+body{font-family:system-ui;background:#f6f8ff;margin:0}
 .wrap{max-width:1100px;margin:auto;background:#fff;padding:20px;border-radius:12px}
 
 .nav{display:flex;gap:10px}
 .nav a{flex:1;text-align:center;padding:10px;background:#eee;border-radius:8px;text-decoration:none}
-.nav a.active{background:#1a73e8;color:#fff}
-
-input,button{width:100%;padding:10px;margin-top:8px;border-radius:8px;border:1px solid #ddd}
-button{background:#1a73e8;color:#fff;border:none;cursor:pointer}
+.nav a.active{background:#1a73e8;color:#fff;color:#fff}
 
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
 
-#map{height:500px;border-radius:10px;margin-top:10px}
+input,button{
+  width:100%;padding:10px;margin-top:8px;
+  border-radius:8px;border:1px solid #ddd
+}
+button{background:#1a73e8;color:#fff;border:none;cursor:pointer}
 
-.stop{padding:8px;background:#eee;margin-top:5px;border-radius:6px;cursor:grab}
+#map{height:500px;border-radius:10px}
+
+.stop{padding:8px;background:#eee;margin-top:6px;border-radius:6px;display:flex;justify-content:space-between}
 
 .card{padding:10px;margin-top:10px;background:#f2f6ff;border-left:5px solid #1a73e8}
 </style>
 </head>
 
 <body>
-
 <div class="wrap">
 
-<h2>🌍 Travel OS v3</h2>
+<h2>🌍 Travel OS (Wanderlog Lite)</h2>
 
 <div class="nav">
     <a class="<?= $tool=='plan'?'active':'' ?>" href="?tool=plan">Trip</a>
@@ -76,21 +102,21 @@ button{background:#1a73e8;color:#fff;border:none;cursor:pointer}
     <a class="<?= $tool=='schengen'?'active':'' ?>" href="?tool=schengen">Schengen</a>
 </div>
 
-<!-- ================= TRIP ================= -->
+<!-- ================= TRIP PLANNER ================= -->
 <?php if ($tool=="plan"): ?>
 
 <div class="grid">
 
 <div>
-    <h3>🧳 Trip Builder</h3>
+    <h3>🧳 Trip Planner</h3>
 
     <input id="place" placeholder="City or place">
     <button onclick="addPlace()">Add Stop</button>
 
     <div id="list"></div>
 
-    <button onclick="exportPDF()">📄 Export PDF</button>
-    <button onclick="shareTrip()">🔗 Share</button>
+    <button onclick="exportPDF()">Export PDF</button>
+    <button onclick="shareTrip()">Share Trip</button>
 </div>
 
 <div>
@@ -102,66 +128,98 @@ button{background:#1a73e8;color:#fff;border:none;cursor:pointer}
 
 <script>
 let map;
-let markers=[];
-let stops=[];
+let markers = [];
+let stops = <?php echo json_encode($sharedStops ?: []); ?>;
+
+/* fallback localStorage */
+if(stops.length === 0){
+    let saved = localStorage.getItem("trip");
+    if(saved) stops = JSON.parse(saved);
+}
+
+let lastGeoCall = 0;
 
 function initMap(){
     if(map) return;
-    map=L.map('map').setView([52,5],6);
+    map = L.map('map').setView([52,5],6);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
         attribution:'OSM'
     }).addTo(map);
 }
 
-// FREE GEOCODING (Nominatim)
+/* rate-limited geocoder */
 async function geocode(q){
-    let res=await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${q}`);
-    let data=await res.json();
+    let now = Date.now();
+    if(now - lastGeoCall < 1100){
+        await new Promise(r=>setTimeout(r,1100));
+    }
+    lastGeoCall = Date.now();
+
+    let res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}`
+    );
+    let data = await res.json();
     return data[0];
 }
 
 async function addPlace(){
-    let val=document.getElementById("place").value;
+    let val = document.getElementById("place").value;
     if(!val) return;
 
-    let geo=await geocode(val);
+    let geo = await geocode(val);
     if(!geo) return alert("Not found");
 
     initMap();
 
-    let lat=geo.lat;
-    let lon=geo.lon;
-
-    let m=L.marker([lat,lon],{draggable:true})
-        .addTo(map)
-        .bindPopup(val);
-
-    markers.push(m);
-    stops.push({name:val,lat,lon});
+    stops.push({
+        name: val,
+        lat: geo.lat,
+        lon: geo.lon
+    });
 
     render();
 }
 
-function render(){
-    let box=document.getElementById("list");
-    box.innerHTML="";
-
-    stops.forEach((s,i)=>{
-        box.innerHTML+=`<div class="stop">${i+1}. ${s.name}</div>`;
-    });
+function removeStop(i){
+    stops.splice(i,1);
+    render();
 }
 
-// SHARE
+function render(){
+    let box = document.getElementById("list");
+    box.innerHTML = "";
+
+    markers.forEach(m => map.removeLayer(m));
+    markers = [];
+
+    stops.forEach((s,i)=>{
+        box.innerHTML += `
+        <div class="stop">
+            <span>${i+1}. ${s.name}</span>
+            <button onclick="removeStop(${i})" style="width:auto;padding:5px">x</button>
+        </div>`;
+
+        let m = L.marker([s.lat,s.lon])
+            .addTo(map)
+            .bindPopup(s.name);
+
+        markers.push(m);
+    });
+
+    localStorage.setItem("trip", JSON.stringify(stops));
+}
+
 function shareTrip(){
-    let url=window.location.origin+window.location.pathname+"?tool=plan&data="+encodeURIComponent(JSON.stringify(stops));
+    let url = window.location.origin + window.location.pathname +
+        "?tool=plan&data=" + encodeURIComponent(JSON.stringify(stops));
+
     navigator.clipboard.writeText(url);
     alert("Copied share link");
 }
 
-// PDF EXPORT
 function exportPDF(){
-    const {jsPDF}=window.jspdf;
-    let doc=new jsPDF();
+    const {jsPDF} = window.jspdf;
+    let doc = new jsPDF();
 
     doc.text("Travel OS Trip",10,10);
 
@@ -171,6 +229,9 @@ function exportPDF(){
 
     doc.save("trip.pdf");
 }
+
+initMap();
+render();
 </script>
 
 <?php endif; ?>
@@ -178,17 +239,17 @@ function exportPDF(){
 <!-- ================= VISA ================= -->
 <?php if ($tool=="visa"): ?>
 
-<h3>🛂 Visa</h3>
+<h3>🛂 Visa Checker</h3>
 
 <form method="POST">
-<input name="from" placeholder="Passport">
-<input name="to" placeholder="Destination">
-<button>Check</button>
+<input name="from" placeholder="Passport country">
+<input name="to" placeholder="Destination country">
+<button>Check Visa</button>
 </form>
 
 <?php if ($result): ?>
 <div class="card">
-<?= $result[0] ?><br>
+<b><?= $result[0] ?></b><br>
 <?= $result[1] ?> days<br>
 <?= $result[2] ?>
 </div>
@@ -199,10 +260,10 @@ function exportPDF(){
 <!-- ================= SCHENGEN ================= -->
 <?php if ($tool=="schengen"): ?>
 
-<h3>🇪🇺 Schengen</h3>
+<h3>🇪🇺 Schengen Calculator</h3>
 
 <form method="POST">
-<input name="used" type="number" placeholder="Days used">
+<input name="used" type="number" placeholder="Days used in last 180 days">
 <button>Calculate</button>
 </form>
 
@@ -217,6 +278,5 @@ Status: <?= $result[2] ?>
 <?php endif; ?>
 
 </div>
-
 </body>
 </html>
