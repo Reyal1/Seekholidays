@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Seekholidays - Discover Your Perfect Getaway</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -12,259 +15,429 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Poppins', sans-serif;
             line-height: 1.6;
-            color: #333;
+            color: #2d3436;
+            background: #fafbfc;
         }
 
+        /* Header Navigation */
         header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 20px 0;
+            padding: 16px 0;
             position: sticky;
             top: 0;
             z-index: 100;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
         }
 
         nav {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 20px;
+            padding: 0 30px;
         }
 
         .logo {
             font-size: 28px;
-            font-weight: bold;
-            letter-spacing: 1px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         nav ul {
             list-style: none;
             display: flex;
-            gap: 30px;
+            gap: 40px;
+            align-items: center;
         }
 
         nav a {
             color: white;
             text-decoration: none;
-            transition: opacity 0.3s ease;
+            transition: all 0.3s ease;
             font-weight: 500;
+            position: relative;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #ff6b6b;
+            transition: width 0.3s ease;
+        }
+
+        nav a:hover::after {
+            width: 100%;
         }
 
         nav a:hover {
-            opacity: 0.8;
+            opacity: 1;
         }
 
+        /* Hero Section */
         .hero {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            text-align: center;
-            padding: 100px 20px;
+            padding: 120px 30px;
             position: relative;
             overflow: hidden;
+            text-align: center;
         }
 
         .hero::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-            opacity: 0.5;
+            top: -50%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            filter: blur(40px);
+            z-index: 0;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -50%;
+            left: -10%;
+            width: 500px;
+            height: 500px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            filter: blur(40px);
+            z-index: 0;
         }
 
         .hero-content {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             position: relative;
             z-index: 1;
         }
 
         .hero h1 {
-            font-size: 56px;
+            font-size: 68px;
             margin-bottom: 20px;
-            font-weight: 700;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            font-weight: 800;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+            line-height: 1.2;
         }
 
         .hero p {
-            font-size: 20px;
+            font-size: 22px;
             margin-bottom: 40px;
             opacity: 0.95;
+            font-weight: 300;
         }
 
         .cta-button {
             display: inline-block;
-            background: #ff6b6b;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
             color: white;
-            padding: 16px 40px;
+            padding: 16px 48px;
             text-decoration: none;
             border-radius: 50px;
-            font-weight: 600;
-            font-size: 18px;
+            font-weight: 700;
+            font-size: 16px;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
             cursor: pointer;
             border: none;
         }
 
         .cta-button:hover {
-            background: #ff5252;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+            background: linear-gradient(135deg, #ff5252 0%, #ff4040 100%);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 35px rgba(255, 107, 107, 0.6);
         }
 
+        /* Features Section */
         .features {
-            max-width: 1200px;
-            margin: 80px auto;
-            padding: 0 20px;
+            max-width: 1400px;
+            margin: 100px auto;
+            padding: 0 30px;
         }
 
         .features h2 {
             text-align: center;
-            font-size: 42px;
-            margin-bottom: 50px;
-            color: #333;
+            font-size: 48px;
+            margin-bottom: 60px;
+            color: #2d3436;
+            font-weight: 800;
         }
 
         .features-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 30px;
         }
 
         .feature-card {
             background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 40px 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            transform: translateY(-12px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
         }
 
         .feature-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
+            font-size: 56px;
+            margin-bottom: 20px;
+            display: inline-block;
         }
 
         .feature-card h3 {
-            font-size: 22px;
+            font-size: 24px;
             margin-bottom: 15px;
             color: #667eea;
+            font-weight: 700;
         }
 
         .feature-card p {
-            color: #666;
+            color: #636e72;
             line-height: 1.8;
+            font-weight: 400;
         }
 
+        /* Destinations Section */
         .destinations {
-            background: #f8f9fa;
-            padding: 80px 20px;
-            margin-top: 80px;
+            background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
+            padding: 100px 30px;
+            margin-top: 100px;
         }
 
         .destinations-content {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
         .destinations h2 {
             text-align: center;
-            font-size: 42px;
-            margin-bottom: 50px;
-            color: #333;
+            font-size: 48px;
+            margin-bottom: 60px;
+            color: #2d3436;
+            font-weight: 800;
         }
 
         .destinations-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
         }
 
         .destination-card {
             background: white;
-            border-radius: 10px;
+            border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
         }
 
         .destination-card:hover {
-            transform: scale(1.05);
+            transform: translateY(-12px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
         }
 
-        .destination-placeholder {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            height: 200px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 48px;
+        .destination-image {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+            display: block;
         }
 
         .destination-info {
-            padding: 20px;
+            padding: 25px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
         }
 
         .destination-info h3 {
-            color: #333;
+            color: #2d3436;
             margin-bottom: 10px;
+            font-size: 22px;
+            font-weight: 700;
         }
 
         .destination-info p {
-            color: #666;
+            color: #636e72;
+            font-size: 14px;
+            margin-bottom: 15px;
+            flex-grow: 1;
+        }
+
+        .destination-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
             font-size: 14px;
         }
 
-        footer {
-            background: #2c3e50;
-            color: white;
+        .destination-link:hover {
+            color: #ff6b6b;
+            transform: translateX(4px);
+        }
+
+        /* Continents Section */
+        .continents {
+            max-width: 1400px;
+            margin: 100px auto;
+            padding: 0 30px;
+        }
+
+        .continents h2 {
             text-align: center;
-            padding: 40px 20px;
-            margin-top: 80px;
+            font-size: 48px;
+            margin-bottom: 60px;
+            color: #2d3436;
+            font-weight: 800;
         }
 
-        footer p {
-            margin-bottom: 15px;
-        }
-
-        .footer-links {
-            display: flex;
-            justify-content: center;
+        .continents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 30px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
         }
 
-        .footer-links a {
-            color: #ecf0f1;
+        .continent-card {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            height: 350px;
+            cursor: pointer;
+            group: 1;
             text-decoration: none;
-            transition: color 0.3s ease;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 40px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
         }
 
-        .footer-links a:hover {
-            color: #667eea;
+        .continent-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.6) 100%);
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+
+        .continent-card img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+            transition: transform 0.3s ease;
+        }
+
+        .continent-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .continent-card:hover::before {
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.8) 100%);
+        }
+
+        .continent-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .continent-card h3 {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .continent-card p {
+            font-size: 16px;
+            font-weight: 400;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .continent-button {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            width: fit-content;
+        }
+
+        .continent-card:hover .continent-button {
+            background: #ff6b6b;
+            border-color: #ff6b6b;
+        }
+
+        /* Stats Section */
+        .stats-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 80px 30px;
+            margin: 100px 0;
+            color: white;
+        }
+
+        .stats-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .stats-section h2 {
+            text-align: center;
+            font-size: 48px;
+            margin-bottom: 60px;
+            font-weight: 800;
         }
 
         .stats {
-            display: flex;
-            justify-content: center;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 40px;
-            margin: 40px 0;
-            flex-wrap: wrap;
         }
 
         .stat {
@@ -272,27 +445,119 @@
         }
 
         .stat-number {
-            font-size: 32px;
-            font-weight: bold;
-            color: #667eea;
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .stat-label {
-            color: #ecf0f1;
-            margin-top: 5px;
+            font-size: 18px;
+            font-weight: 500;
+            opacity: 0.95;
         }
 
+        /* Footer */
+        footer {
+            background: #1e272e;
+            color: white;
+            padding: 60px 30px 30px;
+            margin-top: 100px;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .footer-top {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-section h4 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #667eea;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-section a {
+            color: #b2bec3;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: #667eea;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 30px;
+            text-align: center;
+            color: #95a5a6;
+        }
+
+        .footer-bottom p {
+            margin-bottom: 15px;
+        }
+
+        .footer-social {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .footer-social a {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: rgba(102, 126, 234, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            color: #667eea;
+        }
+
+        .footer-social a:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
             .hero h1 {
-                font-size: 36px;
+                font-size: 42px;
             }
 
             .hero p {
                 font-size: 18px;
             }
 
+            .hero {
+                padding: 80px 20px;
+            }
+
+            nav {
+                padding: 0 20px;
+            }
+
             nav ul {
-                gap: 15px;
+                gap: 20px;
             }
 
             nav a {
@@ -300,8 +565,53 @@
             }
 
             .features h2,
-            .destinations h2 {
+            .destinations h2,
+            .continents h2,
+            .stats-section h2 {
+                font-size: 36px;
+            }
+
+            .features,
+            .destinations,
+            .continents {
+                padding: 0 20px;
+            }
+
+            .continent-card {
+                height: 280px;
+            }
+
+            .continent-card h3 {
+                font-size: 28px;
+            }
+
+            .logo {
+                font-size: 24px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
                 font-size: 32px;
+            }
+
+            nav ul {
+                gap: 10px;
+            }
+
+            nav a {
+                font-size: 12px;
+            }
+
+            .features-grid,
+            .destinations-grid,
+            .continents-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-button {
+                padding: 14px 32px;
+                font-size: 14px;
             }
         }
     </style>
@@ -314,7 +624,8 @@
             <ul>
                 <li><a href="#features">Features</a></li>
                 <li><a href="#destinations">Destinations</a></li>
-                <li><a href="https://seekholidays.com" class="cta-button" style="padding: 10px 20px; font-size: 14px;">Visit Website</a></li>
+                <li><a href="#continents">Continents</a></li>
+                <li><a href="https://seekholidays.com" class="cta-button" style="padding: 10px 20px; font-size: 14px;">Book Now</a></li>
             </ul>
         </nav>
     </header>
@@ -370,87 +681,187 @@
         <div class="destinations-content">
             <h2>Popular Destinations</h2>
             <div class="destinations-grid">
-                <div class="destination-card">
-                    <div class="destination-placeholder">🏝️</div>
+                <a href="/asia/saudi-arabia" class="destination-card">
+                    <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=300&fit=crop" alt="Saudi Arabia" class="destination-image">
                     <div class="destination-info">
-                        <h3>Tropical Beaches</h3>
-                        <p>Relax on pristine sandy beaches with crystal clear waters</p>
+                        <h3>Saudi Arabia</h3>
+                        <p>Experience ancient wonders and modern marvels in the heart of the Arabian Peninsula</p>
+                        <a href="/asia/saudi-arabia" class="destination-link">Explore →</a>
                     </div>
-                </div>
-                <div class="destination-card">
-                    <div class="destination-placeholder">🏔️</div>
+                </a>
+                <a href="/asia/thailand" class="destination-card">
+                    <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=500&h=300&fit=crop" alt="Thailand" class="destination-image">
                     <div class="destination-info">
-                        <h3>Mountain Escapes</h3>
-                        <p>Adventure and serenity in the heart of majestic mountains</p>
+                        <h3>Thailand</h3>
+                        <p>Tropical paradise with pristine beaches, temples, and vibrant street markets</p>
+                        <a href="/asia/thailand" class="destination-link">Explore →</a>
                     </div>
-                </div>
-                <div class="destination-card">
-                    <div class="destination-placeholder">🏙️</div>
+                </a>
+                <a href="/asia/japan" class="destination-card">
+                    <img src="https://images.unsplash.com/photo-1522383537445-ad782909aa7e?w=500&h=300&fit=crop" alt="Japan" class="destination-image">
                     <div class="destination-info">
-                        <h3>City Adventures</h3>
-                        <p>Explore vibrant cities with world-class attractions</p>
+                        <h3>Japan</h3>
+                        <p>Blend of ancient traditions and cutting-edge technology in stunning landscapes</p>
+                        <a href="/asia/japan" class="destination-link">Explore →</a>
                     </div>
-                </div>
-                <div class="destination-card">
-                    <div class="destination-placeholder">🏛️</div>
+                </a>
+                <a href="/europe/italy" class="destination-card">
+                    <img src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=500&h=300&fit=crop" alt="Italy" class="destination-image">
                     <div class="destination-info">
-                        <h3>Cultural Sites</h3>
-                        <p>Immerse yourself in rich history and diverse cultures</p>
+                        <h3>Italy</h3>
+                        <p>Historic cities, Renaissance art, delicious cuisine, and romantic countryside</p>
+                        <a href="/europe/italy" class="destination-link">Explore →</a>
                     </div>
-                </div>
-                <div class="destination-card">
-                    <div class="destination-placeholder">🌳</div>
+                </a>
+                <a href="/europe/france" class="destination-card">
+                    <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=500&h=300&fit=crop" alt="France" class="destination-image">
                     <div class="destination-info">
-                        <h3>Nature Retreats</h3>
-                        <p>Connect with nature in pristine natural environments</p>
+                        <h3>France</h3>
+                        <p>City of lights, world-class museums, wine regions, and iconic landmarks</p>
+                        <a href="/europe/france" class="destination-link">Explore →</a>
                     </div>
-                </div>
-                <div class="destination-card">
-                    <div class="destination-placeholder">🎿</div>
+                </a>
+                <a href="/asia/bali" class="destination-card">
+                    <img src="https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=500&h=300&fit=crop" alt="Bali" class="destination-image">
                     <div class="destination-info">
-                        <h3>Winter Sports</h3>
-                        <p>Experience thrilling snow sports and winter wonderlands</p>
+                        <h3>Bali, Indonesia</h3>
+                        <p>Tropical island with beautiful beaches, rice terraces, and spiritual temples</p>
+                        <a href="/asia/bali" class="destination-link">Explore →</a>
                     </div>
-                </div>
+                </a>
             </div>
         </div>
     </section>
 
+    <!-- Continents Section -->
+    <section class="continents" id="continents">
+        <h2>Explore by Continent</h2>
+        <div class="continents-grid">
+            <a href="/asia" class="continent-card">
+                <img src="https://images.unsplash.com/photo-1505228395891-9a51e7e86e81?w=600&h=400&fit=crop" alt="Asia">
+                <div class="continent-content">
+                    <h3>Asia</h3>
+                    <p>Discover ancient temples, bustling cities, and pristine beaches</p>
+                    <span class="continent-button">Explore Asia</span>
+                </div>
+            </a>
+            <a href="/europe" class="continent-card">
+                <img src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=600&h=400&fit=crop" alt="Europe">
+                <div class="continent-content">
+                    <h3>Europe</h3>
+                    <p>Iconic landmarks, rich history, and charming countryside</p>
+                    <span class="continent-button">Explore Europe</span>
+                </div>
+            </a>
+            <a href="/africa" class="continent-card">
+                <img src="https://images.unsplash.com/photo-1516426122078-c23e76319801?w=600&h=400&fit=crop" alt="Africa">
+                <div class="continent-content">
+                    <h3>Africa</h3>
+                    <p>Wildlife safaris, diverse cultures, and breathtaking landscapes</p>
+                    <span class="continent-button">Explore Africa</span>
+                </div>
+            </a>
+            <a href="/americas" class="continent-card">
+                <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&h=400&fit=crop" alt="Americas">
+                <div class="continent-content">
+                    <h3>Americas</h3>
+                    <p>Ancient ruins, vibrant cities, and natural wonders</p>
+                    <span class="continent-button">Explore Americas</span>
+                </div>
+            </a>
+            <a href="/oceania" class="continent-card">
+                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=400&fit=crop" alt="Oceania">
+                <div class="continent-content">
+                    <h3>Oceania</h3>
+                    <p>Island paradises, Great Barrier Reef, and Pacific culture</p>
+                    <span class="continent-button">Explore Oceania</span>
+                </div>
+            </a>
+            <a href="/middle-east" class="continent-card">
+                <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=400&fit=crop" alt="Middle East">
+                <div class="continent-content">
+                    <h3>Middle East</h3>
+                    <p>Ancient wonders, luxury experiences, and desert adventures</p>
+                    <span class="continent-button">Explore Middle East</span>
+                </div>
+            </a>
+        </div>
+    </section>
+
     <!-- Stats Section -->
-    <section class="features">
-        <h2>Trusted by Millions</h2>
-        <div class="stats">
-            <div class="stat">
-                <div class="stat-number">50+</div>
-                <div class="stat-label">Countries</div>
-            </div>
-            <div class="stat">
-                <div class="stat-number">10K+</div>
-                <div class="stat-label">Destinations</div>
-            </div>
-            <div class="stat">
-                <div class="stat-number">1M+</div>
-                <div class="stat-label">Happy Travelers</div>
-            </div>
-            <div class="stat">
-                <div class="stat-number">24/7</div>
-                <div class="stat-label">Support</div>
+    <section class="stats-section">
+        <div class="stats-content">
+            <h2>Trusted by Millions</h2>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-number">195+</div>
+                    <div class="stat-label">Countries</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">50K+</div>
+                    <div class="stat-label">Destinations</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">5M+</div>
+                    <div class="stat-label">Happy Travelers</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">24/7</div>
+                    <div class="stat-label">Support</div>
+                </div>
             </div>
         </div>
     </section>
 
     <!-- Footer -->
     <footer>
-        <h3>Seekholidays</h3>
-        <p>Your gateway to unforgettable holiday experiences</p>
-        <div class="footer-links">
-            <a href="https://seekholidays.com">Visit Website</a>
-            <a href="https://seekholidays.com/about">About Us</a>
-            <a href="https://seekholidays.com/contact">Contact</a>
-            <a href="https://seekholidays.com/privacy">Privacy Policy</a>
-            <a href="https://seekholidays.com/terms">Terms & Conditions</a>
+        <div class="footer-content">
+            <div class="footer-top">
+                <div class="footer-section">
+                    <h4>About Seekholidays</h4>
+                    <p style="color: #b2bec3;">Your gateway to unforgettable holiday experiences. Discover, plan, and book your perfect trip with us.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Destinations</h4>
+                    <ul>
+                        <li><a href="/asia">Asia</a></li>
+                        <li><a href="/europe">Europe</a></li>
+                        <li><a href="/africa">Africa</a></li>
+                        <li><a href="/americas">Americas</a></li>
+                        <li><a href="/oceania">Oceania</a></li>
+                        <li><a href="/middle-east">Middle East</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="https://seekholidays.com/about">About Us</a></li>
+                        <li><a href="https://seekholidays.com/blog">Blog</a></li>
+                        <li><a href="https://seekholidays.com/careers">Careers</a></li>
+                        <li><a href="https://seekholidays.com/press">Press</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="https://seekholidays.com/contact">Contact Us</a></li>
+                        <li><a href="https://seekholidays.com/faq">FAQ</a></li>
+                        <li><a href="https://seekholidays.com/privacy">Privacy Policy</a></li>
+                        <li><a href="https://seekholidays.com/terms">Terms & Conditions</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="footer-social">
+                    <a href="https://facebook.com/seekholidays" title="Facebook">f</a>
+                    <a href="https://twitter.com/seekholidays" title="Twitter">𝕏</a>
+                    <a href="https://instagram.com/seekholidays" title="Instagram">📷</a>
+                    <a href="https://youtube.com/seekholidays" title="YouTube">▶</a>
+                </div>
+                <p>&copy; 2026 Seekholidays. All rights reserved.</p>
+                <p>Designed with ❤️ to help you discover the world</p>
+            </div>
         </div>
-        <p>&copy; 2026 Seekholidays. All rights reserved. | <a href="https://seekholidays.com" style="color: #667eea;">seekholidays.com</a></p>
     </footer>
 </body>
 </html>
