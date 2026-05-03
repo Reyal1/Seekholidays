@@ -1,10 +1,7 @@
-
 <?php
 $tool = $_GET["tool"] ?? "plan";
 
-/* ---------------------------
-   VISA DATABASE (safe lookup)
-----------------------------*/
+/* ---------------- VISA DATA ---------------- */
 function visaData() {
     return [
         "Netherlands" => [
@@ -22,38 +19,18 @@ function visaData() {
 $data = visaData();
 $result = null;
 
-/* ---------------------------
-   VISA LOGIC
-----------------------------*/
 if ($tool === "visa" && $_SERVER["REQUEST_METHOD"] === "POST") {
     $from = trim($_POST["from"] ?? "");
     $to = trim($_POST["to"] ?? "");
 
-    if (isset($data[$from][$to])) {
-        $result = $data[$from][$to];
-    } else {
-        $result = ["Unknown visa", "-", "No data available"];
-    }
+    $result = $data[$from][$to] ?? ["Unknown visa","-","No data"];
 }
 
-/* ---------------------------
-   SCHENGEN LOGIC
-----------------------------*/
 if ($tool === "schengen" && $_SERVER["REQUEST_METHOD"] === "POST") {
     $used = intval($_POST["used"] ?? 0);
     $remaining = max(0, 90 - $used);
     $status = ($used > 90) ? "OVERSTAY RISK" : "OK";
-
-    $result = [$used, $remaining, $status];
-}
-
-/* ---------------------------
-   LOAD SHARED TRIP
-----------------------------*/
-$sharedStops = [];
-if (!empty($_GET["data"])) {
-    $decoded = json_decode($_GET["data"], true);
-    if (is_array($decoded)) $sharedStops = $decoded;
+    $result = [$used,$remaining,$status];
 }
 ?>
 
@@ -61,40 +38,43 @@ if (!empty($_GET["data"])) {
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Travel OS</title>
+<title>Travel OS Pro</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-body{font-family:system-ui;background:#f6f8ff;margin:0}
-.wrap{max-width:1100px;margin:auto;background:#fff;padding:20px;border-radius:12px}
+body{font-family:system-ui;margin:0;background:#f6f8ff}
+.wrap{max-width:1200px;margin:auto;background:#fff;padding:20px;border-radius:12px}
 
 .nav{display:flex;gap:10px}
 .nav a{flex:1;text-align:center;padding:10px;background:#eee;border-radius:8px;text-decoration:none}
-.nav a.active{background:#1a73e8;color:#fff;color:#fff}
+.nav a.active{background:#1a73e8;color:#fff}
 
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
 
-input,button{
+input,button,select{
   width:100%;padding:10px;margin-top:8px;
   border-radius:8px;border:1px solid #ddd
 }
 button{background:#1a73e8;color:#fff;border:none;cursor:pointer}
 
-#map{height:500px;border-radius:10px}
-
-.stop{padding:8px;background:#eee;margin-top:6px;border-radius:6px;display:flex;justify-content:space-between}
-
 .card{padding:10px;margin-top:10px;background:#f2f6ff;border-left:5px solid #1a73e8}
+
+.day{margin-top:10px;padding:10px;background:#fafafa;border-radius:8px}
+.stop{display:flex;justify-content:space-between;background:#eee;padding:6px;margin-top:5px;border-radius:6px}
+
+#map{height:500px;border-radius:10px}
+.small{font-size:12px;color:#666}
 </style>
 </head>
 
 <body>
+
 <div class="wrap">
 
-<h2>🌍 Travel OS (Wanderlog Lite)</h2>
+<h2>🌍 Travel OS Pro</h2>
 
 <div class="nav">
     <a class="<?= $tool=='plan'?'active':'' ?>" href="?tool=plan">Trip</a>
@@ -102,23 +82,32 @@ button{background:#1a73e8;color:#fff;border:none;cursor:pointer}
     <a class="<?= $tool=='schengen'?'active':'' ?>" href="?tool=schengen">Schengen</a>
 </div>
 
-<!-- ================= TRIP PLANNER ================= -->
+<!-- ================= TRIP ================= -->
 <?php if ($tool=="plan"): ?>
 
 <div class="grid">
 
+<!-- LEFT -->
 <div>
     <h3>🧳 Trip Planner</h3>
 
-    <input id="place" placeholder="City or place">
-    <button onclick="addPlace()">Add Stop</button>
+    <button onclick="addDay()">+ Add Day</button>
 
-    <div id="list"></div>
+    <div id="days"></div>
 
-    <button onclick="exportPDF()">Export PDF</button>
-    <button onclick="shareTrip()">Share Trip</button>
+    <h3>💰 Budget</h3>
+    <input id="expenseName" placeholder="Expense (e.g. Train, Hotel)">
+    <input id="expenseAmount" type="number" placeholder="Amount (€)">
+    <select id="expenseDay"></select>
+    <button onclick="addExpense()">Add Expense</button>
+
+    <div id="budget"></div>
+
+    <button onclick="shareTrip()">🔗 Share</button>
+    <button onclick="exportPDF()">📄 Export PDF</button>
 </div>
 
+<!-- RIGHT -->
 <div>
     <h3>🗺 Map</h3>
     <div id="map"></div>
@@ -128,108 +117,192 @@ button{background:#1a73e8;color:#fff;border:none;cursor:pointer}
 
 <script>
 let map;
-let markers = [];
-let stops = <?php echo json_encode($sharedStops ?: []); ?>;
+let routeLine;
+let drag = null;
 
-/* fallback localStorage */
-if(stops.length === 0){
-    let saved = localStorage.getItem("trip");
-    if(saved) stops = JSON.parse(saved);
-}
+/* ---------- STATE ---------- */
+let trip = {
+  days: [
+    { name: "Day 1", stops: [], expenses: [] }
+  ]
+};
 
-let lastGeoCall = 0;
+/* restore */
+let saved = localStorage.getItem("trip_pro");
+if(saved) trip = JSON.parse(saved);
 
+/* ---------- MAP ---------- */
 function initMap(){
-    if(map) return;
     map = L.map('map').setView([52,5],6);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
         attribution:'OSM'
     }).addTo(map);
 }
 
-/* rate-limited geocoder */
+/* ---------- GEOCODE ---------- */
 async function geocode(q){
-    let now = Date.now();
-    if(now - lastGeoCall < 1100){
-        await new Promise(r=>setTimeout(r,1100));
-    }
-    lastGeoCall = Date.now();
-
-    let res = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}`
-    );
+    let res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}`);
     let data = await res.json();
     return data[0];
 }
 
-async function addPlace(){
-    let val = document.getElementById("place").value;
-    if(!val) return;
+/* ---------- DAYS ---------- */
+function addDay(){
+    trip.days.push({name:"Day "+(trip.days.length+1), stops:[], expenses:[]});
+    render();
+}
 
-    let geo = await geocode(val);
+/* ---------- STOPS ---------- */
+async function addStop(d){
+    let q = prompt("Place?");
+    if(!q) return;
+
+    let geo = await geocode(q);
     if(!geo) return alert("Not found");
 
-    initMap();
-
-    stops.push({
-        name: val,
-        lat: geo.lat,
-        lon: geo.lon
+    trip.days[d].stops.push({
+        name:q,
+        lat:geo.lat,
+        lon:geo.lon
     });
 
     render();
 }
 
-function removeStop(i){
-    stops.splice(i,1);
+function removeStop(d,i){
+    trip.days[d].stops.splice(i,1);
     render();
 }
 
+/* ---------- DRAG ---------- */
+function dragStart(d,i){ drag={d,i}; }
+
+function dropStop(d,i){
+    let item = trip.days[drag.d].stops[drag.i];
+    trip.days[drag.d].stops.splice(drag.i,1);
+    trip.days[d].stops.splice(i,0,item);
+    render();
+}
+
+/* ---------- EXPENSES ---------- */
+function addExpense(){
+    let name = document.getElementById("expenseName").value;
+    let amount = parseFloat(document.getElementById("expenseAmount").value);
+    let day = document.getElementById("expenseDay").value;
+
+    if(!name || !amount) return;
+
+    trip.days[day].expenses.push({name,amount});
+
+    render();
+}
+
+/* ---------- RENDER ---------- */
 function render(){
-    let box = document.getElementById("list");
+
+    /* save */
+    localStorage.setItem("trip_pro", JSON.stringify(trip));
+
+    /* days dropdown */
+    let sel = document.getElementById("expenseDay");
+    sel.innerHTML = "";
+    trip.days.forEach((d,i)=>{
+        sel.innerHTML += `<option value="${i}">${d.name}</option>`;
+    });
+
+    let box = document.getElementById("days");
     box.innerHTML = "";
 
-    markers.forEach(m => map.removeLayer(m));
-    markers = [];
+    let budgetBox = document.getElementById("budget");
+    budgetBox.innerHTML = "";
 
-    stops.forEach((s,i)=>{
+    let totalAll = 0;
+
+    trip.days.forEach((day,d)=>{
+
+        let dayTotal = day.expenses.reduce((s,e)=>s+e.amount,0);
+        totalAll += dayTotal;
+
         box.innerHTML += `
-        <div class="stop">
-            <span>${i+1}. ${s.name}</span>
-            <button onclick="removeStop(${i})" style="width:auto;padding:5px">x</button>
+        <div class="day">
+            <h3>${day.name}</h3>
+            <button onclick="addStop(${d})">+ Stop</button>
+
+            ${day.stops.map((s,i)=>`
+                <div class="stop"
+                    draggable="true"
+                    ondragstart="dragStart(${d},${i})"
+                    ondrop="dropStop(${d},${i})"
+                    ondragover="event.preventDefault()">
+                    <span>${i+1}. ${s.name}</span>
+                    <button onclick="removeStop(${d},${i})" style="width:auto">x</button>
+                </div>
+            `).join("")}
+
+            <div class="small">💰 Day total: €${dayTotal.toFixed(2)}</div>
         </div>`;
-
-        let m = L.marker([s.lat,s.lon])
-            .addTo(map)
-            .bindPopup(s.name);
-
-        markers.push(m);
     });
 
-    localStorage.setItem("trip", JSON.stringify(stops));
+    budgetBox.innerHTML = `
+        <div class="card">
+            <b>Total Trip Budget:</b> €${totalAll.toFixed(2)}
+        </div>
+    `;
+
+    drawMap();
 }
 
+/* ---------- MAP ROUTE ---------- */
+function drawMap(){
+    if(!map) return;
+
+    if(routeLine) map.removeLayer(routeLine);
+
+    let pts = [];
+
+    trip.days.forEach(d=>{
+        d.stops.forEach(s=>{
+            pts.push([s.lat,s.lon]);
+        });
+    });
+
+    if(pts.length>0){
+        routeLine = L.polyline(pts,{color:"blue"}).addTo(map);
+        map.fitBounds(routeLine.getBounds());
+    }
+}
+
+/* ---------- SHARE ---------- */
 function shareTrip(){
-    let url = window.location.origin + window.location.pathname +
-        "?tool=plan&data=" + encodeURIComponent(JSON.stringify(stops));
-
+    let url = location.origin + location.pathname + "?tool=plan&data=" + encodeURIComponent(JSON.stringify(trip));
     navigator.clipboard.writeText(url);
-    alert("Copied share link");
+    alert("Copied!");
 }
 
+/* ---------- PDF ---------- */
 function exportPDF(){
     const {jsPDF} = window.jspdf;
     let doc = new jsPDF();
 
     doc.text("Travel OS Trip",10,10);
 
-    stops.forEach((s,i)=>{
-        doc.text(`${i+1}. ${s.name}`,10,20+i*10);
+    let y=20;
+
+    trip.days.forEach(d=>{
+        doc.text(d.name,10,y); y+=10;
+
+        d.stops.forEach(s=>{
+            doc.text("- "+s.name,15,y); y+=8;
+        });
+
+        let total = d.expenses.reduce((a,b)=>a+b.amount,0);
+        doc.text("€"+total.toFixed(2),15,y); y+=12;
     });
 
     doc.save("trip.pdf");
 }
 
+/* init */
 initMap();
 render();
 </script>
@@ -244,7 +317,7 @@ render();
 <form method="POST">
 <input name="from" placeholder="Passport country">
 <input name="to" placeholder="Destination country">
-<button>Check Visa</button>
+<button>Check</button>
 </form>
 
 <?php if ($result): ?>
@@ -263,7 +336,7 @@ render();
 <h3>🇪🇺 Schengen Calculator</h3>
 
 <form method="POST">
-<input name="used" type="number" placeholder="Days used in last 180 days">
+<input name="used" type="number" placeholder="Days used">
 <button>Calculate</button>
 </form>
 
