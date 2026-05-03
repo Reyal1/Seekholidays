@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seekholidays - Discover Your Perfect Getaway</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 30px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            transition: opacity 0.3s ease;
+            font-weight: 500;
+        }
+
+        nav a:hover {
+            opacity: 0.8;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 100px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.5;
+        }
+
+        .hero-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 56px;
+            margin-bottom: 20px;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero p {
+            font-size: 20px;
+            margin-bottom: 40px;
+            opacity: 0.95;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: #ff6b6b;
+            color: white;
+            padding: 16px 40px;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+            cursor: pointer;
+            border: none;
+        }
+
+        .cta-button:hover {
+            background: #ff5252;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+        }
+
+        .features {
+            max-width: 1200px;
+            margin: 80px auto;
+            padding: 0 20px;
+        }
+
+        .features h2 {
+            text-align: center;
+            font-size: 42px;
+            margin-bottom: 50px;
+            color: #333;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .feature-card h3 {
+            font-size: 22px;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.8;
+        }
+
+        .destinations {
+            background: #f8f9fa;
+            padding: 80px 20px;
+            margin-top: 80px;
+        }
+
+        .destinations-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .destinations h2 {
+            text-align: center;
+            font-size: 42px;
+            margin-bottom: 50px;
+            color: #333;
+        }
+
+        .destinations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .destination-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .destination-card:hover {
+            transform: scale(1.05);
+        }
+
+        .destination-placeholder {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 48px;
+        }
+
+        .destination-info {
+            padding: 20px;
+        }
+
+        .destination-info h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .destination-info p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: 80px;
+        }
+
+        footer p {
+            margin-bottom: 15px;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: #667eea;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #ecf0f1;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px;
+            }
+
+            .hero p {
+                font-size: 18px;
+            }
+
+            nav ul {
+                gap: 15px;
+            }
+
+            nav a {
+                font-size: 14px;
+            }
+
+            .features h2,
+            .destinations h2 {
+                font-size: 32px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Navigation -->
+    <header>
+        <nav>
+            <div class="logo">✈️ Seekholidays</div>
+            <ul>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#destinations">Destinations</a></li>
+                <li><a href="https://seekholidays.com" class="cta-button" style="padding: 10px 20px; font-size: 14px;">Visit Website</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Discover Your Perfect Getaway</h1>
+            <p>Explore amazing destinations and plan unforgettable holidays with Seekholidays</p>
+            <a href="https://seekholidays.com" class="cta-button">Start Exploring Now</a>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <h2>Why Choose Seekholidays?</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🌍</div>
+                <h3>Global Destinations</h3>
+                <p>Discover thousands of amazing destinations across the globe, from exotic beaches to mountain retreats.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💰</div>
+                <h3>Best Prices</h3>
+                <p>Get the best deals on flights, hotels, and holiday packages with our exclusive offers and discounts.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📅</div>
+                <h3>Easy Booking</h3>
+                <p>Simple and intuitive booking process. Plan and reserve your entire trip in just a few clicks.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🛡️</div>
+                <h3>Secure & Safe</h3>
+                <p>Your information is protected with industry-leading security. Book with confidence and peace of mind.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">👥</div>
+                <h3>Expert Support</h3>
+                <p>24/7 customer support team ready to help you with any questions or concerns about your holiday.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⭐</div>
+                <h3>Curated Experiences</h3>
+                <p>Hand-picked experiences and local tours to make your holiday truly memorable and unique.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Destinations Section -->
+    <section class="destinations" id="destinations">
+        <div class="destinations-content">
+            <h2>Popular Destinations</h2>
+            <div class="destinations-grid">
+                <div class="destination-card">
+                    <div class="destination-placeholder">🏝️</div>
+                    <div class="destination-info">
+                        <h3>Tropical Beaches</h3>
+                        <p>Relax on pristine sandy beaches with crystal clear waters</p>
+                    </div>
+                </div>
+                <div class="destination-card">
+                    <div class="destination-placeholder">🏔️</div>
+                    <div class="destination-info">
+                        <h3>Mountain Escapes</h3>
+                        <p>Adventure and serenity in the heart of majestic mountains</p>
+                    </div>
+                </div>
+                <div class="destination-card">
+                    <div class="destination-placeholder">🏙️</div>
+                    <div class="destination-info">
+                        <h3>City Adventures</h3>
+                        <p>Explore vibrant cities with world-class attractions</p>
+                    </div>
+                </div>
+                <div class="destination-card">
+                    <div class="destination-placeholder">🏛️</div>
+                    <div class="destination-info">
+                        <h3>Cultural Sites</h3>
+                        <p>Immerse yourself in rich history and diverse cultures</p>
+                    </div>
+                </div>
+                <div class="destination-card">
+                    <div class="destination-placeholder">🌳</div>
+                    <div class="destination-info">
+                        <h3>Nature Retreats</h3>
+                        <p>Connect with nature in pristine natural environments</p>
+                    </div>
+                </div>
+                <div class="destination-card">
+                    <div class="destination-placeholder">🎿</div>
+                    <div class="destination-info">
+                        <h3>Winter Sports</h3>
+                        <p>Experience thrilling snow sports and winter wonderlands</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="features">
+        <h2>Trusted by Millions</h2>
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-number">50+</div>
+                <div class="stat-label">Countries</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">10K+</div>
+                <div class="stat-label">Destinations</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">1M+</div>
+                <div class="stat-label">Happy Travelers</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">24/7</div>
+                <div class="stat-label">Support</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <h3>Seekholidays</h3>
+        <p>Your gateway to unforgettable holiday experiences</p>
+        <div class="footer-links">
+            <a href="https://seekholidays.com">Visit Website</a>
+            <a href="https://seekholidays.com/about">About Us</a>
+            <a href="https://seekholidays.com/contact">Contact</a>
+            <a href="https://seekholidays.com/privacy">Privacy Policy</a>
+            <a href="https://seekholidays.com/terms">Terms & Conditions</a>
+        </div>
+        <p>&copy; 2026 Seekholidays. All rights reserved. | <a href="https://seekholidays.com" style="color: #667eea;">seekholidays.com</a></p>
+    </footer>
+</body>
+</html>
